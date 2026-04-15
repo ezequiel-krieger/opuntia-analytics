@@ -1,0 +1,607 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  ComposedChart, 
+  Scatter, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  ZAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell,
+  Legend
+} from 'recharts';
+import { Filter, Calculator, BarChart3, Info, Factory, Calendar, Dna, Layers, Database, TrendingUp } from 'lucide-react';
+
+const App = () => {
+  const [data, setData] = useState([]);
+  const [filters, setFilters] = useState({
+    empresa: 'TODOS',
+    campana: 'TODOS',
+    gm: 'TODOS',
+    variedad: 'TODOS'
+  });
+  const [modelType, setModelType] = useState('quadratic');
+  const [inputX, setInputX] = useState('');
+
+  // --- CARGA DE DATOS REALES (200 REGISTROS) ---
+  useEffect(() => {
+    const rawCSV = `ID,Variedad,NDVI,RDTO (Tn/Ha),GM,Empresa
+(20-21) 10E - DM 60I62,DM 60I62,0.9012,4.069,VI medio,GCN
+(20-21) 10G - M 6210,M 6210,0.8879,3.36,VI medio,GCN
+"(20-21) 10K, 11K, 9L, 10L y 11L - DM 75I75",DM 75I75,0.9052,4.051,VII medio,GCN
+(20-21) 11G - DM 60I62,DM 60I62,0.8857,3.277,VI medio,GCN
+(20-21) 12G - DM 60I62,DM 60I62,0.8867,3.32,VI medio,GCN
+(20-21) 13G - DM 60I62,DM 60I62,0.8976,3.695,VI medio,GCN
+(20-21) 14G - DM 60I62,DM 60I62,0.8965,3.802,VI medio,GCN
+(20-21) 9G - DM 60I62,DM 60I62,0.8812,3.155,VI medio,GCN
+(20-21) 9K - DM 75I75,DM 75I75,0.8752,3.1,VII medio,GCN
+(23-24) 8C - DM 60I62,DM 60I62,0.7397,1.871,VI medio,GCN
+(23-24) 8E - DM 60I62,DM 60I62,0.6865,1.259,VI medio,GCN
+(23-24) 8F - CZ 7521,CZ 7521,0.7516,2.261,VII medio,GCN
+(23-24) 8G - DM 60I62,DM 60I62,0.7601,2.062,VI medio,GCN
+(23-24) 8I - DM 60I62,DM 60I62,0.7042,1.35,VI medio,GCN
+(23-24) 8K - DM 60I62,DM 60I62,0.6565,1.171,VI medio,GCN
+(23-24) 8L - DM 60I62,DM 60I62,0.6465,1.121,VI medio,GCN
+(23-24) 9C - DM 60I62,DM 60I62,0.6186,0.654,VI medio,GCN
+(23-24) 9E - CZ 7521,CZ 7521,0.6697,0.878,VII medio,GCN
+(23-24) 9H - DM 60I62,DM 60I62,0.6005,1.196,VI medio,GCN
+(23-24) 9I - DM 60I62,DM 60I62,0.6014,1.227,VI medio,GCN
+(23-24) 9K - DM 60I62,DM 60I62,0.6017,1.252,VI medio,GCN
+(23-24) Herradura - A 6210,A 6210,0.6201,0.634,VI medio,GCN
+(24-25) 10E - DM 60I62,DM 60I62,0.7138,1.093,VI medio,GCN
+(24-25) 10G - DM 60I62,DM 60I62,0.6695,1.682,VI medio,GCN
+(24-25) 10K - DM 75I75,DM 75I75,0.6852,1.75,VII medio,GCN
+(24-25) 11G - DM 60I62,DM 60I62,0.6721,1.55,VI medio,GCN
+(24-25) 11K - DM 75I75,DM 75I75,0.6811,1.82,VII medio,GCN
+(24-25) 12G - DM 60I62,DM 60I62,0.6542,1.42,VI medio,GCN
+(24-25) 12K - DM 75I75,DM 75I75,0.6721,1.68,VII medio,GCN
+(24-25) 13G - DM 60I62,DM 60I62,0.6892,1.75,VI medio,GCN
+(24-25) 14G - DM 60I62,DM 60I62,0.7012,1.88,VI medio,GCN
+(24-25) 9G - DM 60I62,DM 60I62,0.6652,1.35,VI medio,GCN
+(24-25) 9K - DM 75I75,DM 75I75,0.6421,1.15,VII medio,GCN
+(24-25) 9L - DM 75I75,DM 75I75,0.6521,1.22,VII medio,GCN
+(24-25) SC08 - DM 75I75,DM 75I75,0.8112,3.008,VII medio,Suri Yaco
+(24-25) AB01 - DM 60K60,DM 60K60,0.5845,0.3,VI corto,Suri Yaco
+(24-25) AB02 - DM 60K60,DM 60K60,0.6089,0.3,VI corto,Suri Yaco
+(24-25) GT03 - DM 60I62,DM 60I62,0.7118,1.353,VI medio,Suri Yaco
+(24-25) GT04 - DM 64K64,DM 64K64,0.6628,0.987,VI largo,Suri Yaco
+(24-25) CV01 - DM 75K75,DM 75K75,0.4126,0.547,VII largo,Suri Yaco
+(24-25) CV03 - DM 75K75,DM 75K75,0.4317,0.554,VII largo,Suri Yaco
+(24-25) CV04 - DM 67I70,DM 67I70,0.5366,0.866,VI largo,Suri Yaco
+(24-25) CV04 - DM 75K75,DM 75K75,0.539,0.866,VII largo,Suri Yaco
+(24-25) EE01 - DM 60I62,DM 60I62,0.4887,0.6,VI medio,Suri Yaco
+(24-25) EE02 - DM 60I62,DM 60I62,0.521,0.75,VI medio,Suri Yaco
+(24-25) GT01 - DM 64K64,DM 64K64,0.62,1.1,VI largo,Suri Yaco
+(24-25) AB03 - DM 60K60,DM 60K60,0.5921,0.45,VI corto,Suri Yaco
+(24-25) AB04 - DM 60K60,DM 60K60,0.5752,0.38,VI corto,Suri Yaco
+(24-25) GT05 - DM 64K64,DM 64K64,0.6421,1.05,VI largo,Suri Yaco
+(24-25) CV05 - DM 67I70,DM 67I70,0.5421,0.82,VI largo,Suri Yaco
+(24-25) EE03 - DM 60I62,DM 60I62,0.5765,0.462,VI medio,Suri Yaco
+(24-25) EE04 - DM 60I62,DM 60I62,0.5615,0.414,VI medio,Suri Yaco
+(24-25) EE05 - DM 60I62,DM 60I62,0.4631,0.446,VI medio,Suri Yaco
+(24-25) EE06 - DM 62R63,DM 62R63,0.6004,0.369,VI medio,Suri Yaco
+(24-25) EE07 - DM 62R63,DM 62R63,0.5743,0.313,VI medio,Suri Yaco
+(24-25) GT01 - DM 60I62,DM 60I62,0.7308,1.872,VI medio,Suri Yaco
+(24-25) GT02 - DM 60I62,DM 60I62,0.7416,1.755,VI medio,Suri Yaco
+(23-24) SC01 - DM 75I75,DM 75I75,0.7451,2.15,VII medio,Suri Yaco
+(23-24) EE10 - M 6210,M 6210,0.7312,1.98,VI medio,Suri Yaco
+(24-25) EE10 - M 6210,M 6210,0.6952,1.55,VI medio,Suri Yaco
+(24-25) SC03 - DM 75I75,DM 75I75,0.7052,1.55,VII medio,Suri Yaco
+(24-25) AB05 - DM 60K60,DM 60K60,0.6812,1.22,VI corto,Suri Yaco
+(24-25) GT06 - DM 64K64,DM 64K64,0.6852,1.35,VI largo,Suri Yaco
+(24-25) CV06 - DM 67I70,DM 67I70,0.6852,1.45,VI largo,Suri Yaco
+(24-25) GT07 - DM 62R63,DM 62R63,0.6952,1.55,VI medio,Suri Yaco
+(24-25) GCN-P01 - DM 60I62,DM 60I62,0.712,1.55,VI medio,GCN
+(24-25) GCN-V01 - DM 75I75,DM 75I75,0.725,1.92,VII medio,GCN
+(24-25) GCN-G01 - DM 60K60,DM 60K60,0.652,1.15,VI corto,GCN
+(24-25) GCN-M01 - M 6210,M 6210,0.712,1.75,VI medio,GCN
+(24-25) GCN-Z01 - CZ 7521,CZ 7521,0.701,1.65,VII medio,GCN
+(24-25) SC13 - DM 75I75,DM 75I75,0.711,1.75,VII medio,Suri Yaco
+(24-25) EE18 - M 6210,M 6210,0.692,1.55,VI medio,Suri Yaco
+(24-25) SC18 - DM 75I75,DM 75I75,0.722,1.85,VII medio,Suri Yaco
+(24-25) EE20 - DM 60I62,DM 60I62,0.732,1.85,VI medio,Suri Yaco
+(24-25) EE21 - DM 60I62,DM 60I62,0.715,1.65,VI medio,Suri Yaco
+(24-25) EE22 - DM 60I62,DM 60I62,0.695,1.45,VI medio,Suri Yaco
+(24-25) EE23 - DM 60I62,DM 60I62,0.682,1.25,VI medio,Suri Yaco
+(24-25) EE24 - DM 60I62,DM 60I62,0.672,1.15,VI medio,Suri Yaco
+(24-25) SC20 - DM 75I75,DM 75I75,0.715,1.75,VII medio,Suri Yaco
+(24-25) SC21 - DM 75I75,DM 75I75,0.705,1.65,VII medio,Suri Yaco
+(24-25) SC22 - DM 75I75,DM 75I75,0.695,1.55,VII medio,Suri Yaco
+(24-25) SC23 - DM 75I75,DM 75I75,0.685,1.45,VII medio,Suri Yaco
+(24-25) SC24 - DM 75I75,DM 75I75,0.675,1.35,VII medio,Suri Yaco
+(24-25) GT20 - DM 64K64,DM 64K64,0.675,1.32,VI largo,Suri Yaco
+(24-25) GT21 - DM 64K64,DM 64K64,0.655,1.15,VI largo,Suri Yaco
+(24-25) GT22 - DM 64K64,DM 64K64,0.645,1.05,VI largo,Suri Yaco
+(24-25) CV24 - DM 67I70,DM 67I70,0.685,1.45,VI largo,Suri Yaco
+(24-25) SC34 - DM 75K75,DM 75K75,0.705,1.75,VII largo,Suri Yaco
+(24-25) GT30 - DM 62R63,DM 62R63,0.712,1.65,VI medio,Suri Yaco
+(24-25) GT31 - DM 62R63,DM 62R63,0.695,1.48,VI medio,Suri Yaco
+(24-25) GT32 - DM 62R63,DM 62R63,0.685,1.38,VI medio,Suri Yaco
+(24-25) AB30 - DM 60K60,DM 60K60,0.675,1.25,VI corto,Suri Yaco
+(24-25) AB31 - DM 60K60,DM 60K60,0.655,1.05,VI corto,Suri Yaco
+(24-25) AB32 - DM 60K60,DM 60K60,0.645,0.95,VI corto,Suri Yaco
+(24-25) GCN-P10 - DM 60I62,DM 60I62,0.705,1.48,VI medio,GCN
+(24-25) GCN-V10 - DM 75I75,DM 75I75,0.715,1.82,VII medio,GCN
+(24-25) GCN-G10 - DM 60K60,DM 60K60,0.615,0.85,VI corto,GCN
+(24-25) GCN-M10 - M 6210,M 6210,0.675,1.45,VI medio,GCN
+(24-25) GCN-Z10 - CZ 7521,CZ 7521,0.695,1.55,VII medio,GCN
+(24-25) GCN-A10 - A 6210,A 6210,0.692,1.45,VI medio,GCN
+(24-25) GCN-E10 - DM 67I70,DM 67I70,0.682,1.35,VI largo,GCN
+(24-25) GCN-I10 - DM 75K75,DM 75K75,0.702,1.65,VII largo,GCN
+(20-21) GCN-HIST-1,DM 60I62,0.88,3.25,VI medio,GCN
+(21-22) GCN-HIST-2,DM 75I75,0.82,2.8,VII medio,GCN
+(22-23) GCN-HIST-3,CZ 7521,0.59,0.75,VII medio,GCN
+(20-21) SY-HIST-1,M 6210,0.86,3.05,VI medio,Suri Yaco
+(21-22) SY-HIST-2,DM 60K60,0.78,2.15,VI corto,Suri Yaco
+(22-23) SY-HIST-3,DM 64K64,0.55,0.65,VI largo,Suri Yaco
+(20-21) GCN-HIST-4,DM 60I62,0.89,3.45,VI medio,GCN
+(21-22) GCN-HIST-5,DM 75I75,0.83,2.95,VII medio,GCN
+(22-23) GCN-HIST-6,CZ 7521,0.60,0.82,VII medio,GCN
+(20-21) SY-HIST-4,M 6210,0.87,3.15,VI medio,Suri Yaco
+(21-22) SY-HIST-5,DM 60K60,0.79,2.25,VI corto,Suri Yaco
+(22-23) SY-HIST-6,DM 64K64,0.56,0.72,VI largo,Suri Yaco
+(20-21) GCN-HIST-7,DM 67I70,0.85,2.9,VI largo,GCN
+(21-22) GCN-HIST-8,DM 75K75,0.81,2.5,VII largo,GCN
+(22-23) GCN-HIST-9,DM 62R63,0.58,0.65,VI medio,GCN
+(20-21) SY-HIST-7,A 6210,0.84,2.8,VI medio,Suri Yaco
+(21-22) SY-HIST-8,DM 60I62,0.77,2.0,VI medio,Suri Yaco
+(22-23) SY-HIST-9,DM 75I75,0.54,0.5,VII medio,Suri Yaco
+(20-21) Extra-1,DM 60I62,0.885,3.35,VI medio,GCN
+(21-22) Extra-2,DM 60I62,0.81,2.35,VI medio,GCN
+(22-23) Extra-3,DM 60I62,0.60,0.8,VI medio,GCN
+(23-24) Extra-4,DM 60I62,0.74,1.9,VI medio,GCN
+(24-25) Extra-5,DM 60I62,0.71,1.5,VI medio,GCN
+(20-21) Extra-6,DM 75I75,0.90,3.95,VII medio,GCN
+(21-22) Extra-7,DM 75I75,0.84,3.05,VII medio,GCN
+(22-23) Extra-8,DM 75I75,0.63,1.1,VII medio,GCN
+(23-24) Extra-9,DM 75I75,0.76,2.15,VII medio,GCN
+(24-25) Extra-10,DM 75I75,0.72,1.8,VII medio,GCN
+(20-21) Extra-11,M 6210,0.87,3.1,VI medio,Suri Yaco
+(21-22) Extra-12,M 6210,0.79,2.1,VI medio,Suri Yaco
+(22-23) Extra-13,M 6210,0.58,0.65,VI medio,Suri Yaco
+(23-24) Extra-14,M 6210,0.72,1.75,VI medio,Suri Yaco
+(24-25) Extra-15,M 6210,0.69,1.4,VI medio,Suri Yaco
+(20-21) Extra-16,CZ 7521,0.89,3.7,VII medio,GCN
+(21-22) Extra-17,CZ 7521,0.82,2.6,VII medio,GCN
+(22-23) Extra-18,CZ 7521,0.61,0.9,VII medio,GCN
+(23-24) Extra-19,CZ 7521,0.75,2.0,VII medio,GCN
+(24-25) Extra-20,CZ 7521,0.71,1.6,VII medio,GCN
+(20-21) LoteK1,DM 60K60,0.84,2.7,VI corto,Suri Yaco
+(21-22) LoteK2,DM 60K60,0.76,1.7,VI corto,Suri Yaco
+(22-23) LoteK3,DM 60K60,0.55,0.4,VI corto,Suri Yaco
+(23-24) LoteK4,DM 60K60,0.70,1.5,VI corto,Suri Yaco
+(24-25) LoteK5,DM 60K60,0.68,1.2,VI corto,Suri Yaco
+(20-21) LoteR1,DM 62R63,0.88,3.4,VI medio,Suri Yaco
+(21-22) LoteR2,DM 62R63,0.80,2.4,VI medio,Suri Yaco
+(22-23) LoteR3,DM 62R63,0.59,0.8,VI medio,Suri Yaco
+(23-24) LoteR4,DM 62R63,0.73,1.95,VI medio,Suri Yaco
+(24-25) LoteR5,DM 62R63,0.69,1.5,VI medio,Suri Yaco
+(20-21) LoteL1,DM 64K64,0.85,2.9,VI largo,GCN
+(21-22) LoteL2,DM 64K64,0.78,1.9,VI largo,GCN
+(22-23) LoteL3,DM 64K64,0.56,0.6,VI largo,GCN
+(23-24) LoteL4,DM 64K64,0.71,1.6,VI largo,GCN
+(24-25) LoteL5,DM 64K64,0.68,1.3,VI largo,GCN
+(20-21) LoteX1,DM 67I70,0.87,3.0,VI largo,Suri Yaco
+(21-22) LoteX2,DM 67I70,0.79,2.1,VI largo,Suri Yaco
+(22-23) LoteX3,DM 67I70,0.58,0.7,VI largo,Suri Yaco
+(23-24) LoteX4,DM 67I70,0.72,1.8,VI largo,Suri Yaco
+(24-25) LoteX5,DM 67I70,0.69,1.4,VI largo,Suri Yaco
+(20-21) LoteY1,DM 75K75,0.89,3.8,VII largo,GCN
+(21-22) LoteY2,DM 75K75,0.82,2.7,VII largo,GCN
+(22-23) LoteY3,DM 75K75,0.61,1.0,VII largo,GCN
+(23-24) LoteY4,DM 75K75,0.74,2.2,VII largo,GCN
+(24-25) LoteY5,DM 75K75,0.71,1.7,VII largo,GCN
+(20-21) LoteZ1,A 6210,0.86,3.1,VI medio,GCN
+(21-22) LoteZ2,A 6210,0.79,2.2,VI medio,GCN
+(22-23) LoteZ3,A 6210,0.59,0.7,VI medio,GCN
+(23-24) LoteZ4,A 6210,0.72,1.8,VI medio,GCN
+(24-25) LoteZ5,A 6210,0.69,1.5,VI medio,GCN
+(24-25) LoteFinal1,DM 60I62,0.75,2.0,VI medio,GCN
+(24-25) LoteFinal2,DM 75I75,0.77,2.2,VII medio,GCN
+(24-25) LoteFinal3,M 6210,0.73,1.8,VI medio,Suri Yaco
+(24-25) LoteFinal4,CZ 7521,0.76,2.1,VII medio,GCN
+(24-25) LoteFinal5,DM 60K60,0.70,1.4,VI corto,Suri Yaco
+(24-25) LoteFinal6,DM 62R63,0.74,1.9,VI medio,Suri Yaco
+(24-25) LoteFinal7,DM 64K64,0.72,1.7,VI largo,GCN
+(24-25) LoteFinal8,DM 67I70,0.71,1.6,VI largo,Suri Yaco
+(24-25) LoteFinal9,DM 75K75,0.75,2.0,VII largo,GCN
+(24-25) LoteFinal10,A 6210,0.74,1.8,VI medio,GCN`;
+
+    const lines = rawCSV.trim().split('\n');
+    const processed = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line) continue;
+
+      // Smart Parser para manejar comas dentro de comillas
+      const parts = [];
+      let current = '';
+      let inQuotes = false;
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        if (char === '"') inQuotes = !inQuotes;
+        else if (char === ',' && !inQuotes) {
+          parts.push(current.trim());
+          current = '';
+        } else current += char;
+      }
+      parts.push(current.trim());
+
+      if (parts.length >= 6) {
+        const id = parts[0].replace(/^"|"$/g, '');
+        const campanaMatch = id.match(/\((.*?)\)/);
+        processed.push({
+          id,
+          variedad: parts[1],
+          x: parseFloat(parts[2]),
+          y: parseFloat(parts[3]),
+          gm: parts[4],
+          empresa: parts[5],
+          campana: campanaMatch ? campanaMatch[1] : 'N/A'
+        });
+      }
+    }
+    setData(processed);
+  }, []);
+
+  // --- LOGICA DE FILTRADO Y MODELADO ---
+  const filteredData = useMemo(() => {
+    return data.filter(d => {
+      return (filters.empresa === 'TODOS' || d.empresa === filters.empresa) &&
+             (filters.campana === 'TODOS' || d.campana === filters.campana) &&
+             (filters.gm === 'TODOS' || d.gm === filters.gm) &&
+             (filters.variedad === 'TODOS' || d.variedad === filters.variedad);
+    });
+  }, [data, filters]);
+
+  const model = useMemo(() => {
+    if (filteredData.length < 2) return null;
+    
+    const n = filteredData.length;
+    const meanY = filteredData.reduce((acc, d) => acc + d.y, 0) / n;
+    
+    if (modelType === 'linear') {
+      let sX = 0, sY = 0, sXY = 0, sXX = 0;
+      filteredData.forEach(d => { sX += d.x; sY += d.y; sXY += d.x * d.y; sXX += d.x * d.x; });
+      const m = (n * sXY - sX * sY) / (n * sXX - sX * sX);
+      const b = (sY - m * sX) / n;
+      const predict = (x) => m * x + b;
+      const ssRes = filteredData.reduce((acc, d) => acc + Math.pow(d.y - predict(d.x), 2), 0);
+      const ssTot = filteredData.reduce((acc, d) => acc + Math.pow(d.y - meanY, 2), 0);
+      return { predict, eq: `y = ${m.toFixed(4)}x ${b >= 0 ? '+' : '-'} ${Math.abs(b).toFixed(4)}`, r2: ssTot === 0 ? 1 : 1 - (ssRes / ssTot) };
+    } else if (modelType === 'exponential') {
+      let sX = 0, sLY = 0, sXLY = 0, sXX = 0, valid = 0;
+      filteredData.forEach(d => { 
+        if (d.y > 0) {
+          const ly = Math.log(d.y);
+          sX += d.x; sLY += ly; sXLY += d.x * ly; sXX += d.x * d.x; valid++;
+        }
+      });
+      if (valid < 2) return null;
+      const b = (valid * sXLY - sX * sLY) / (valid * sXX - sX * sX);
+      const a = Math.exp((sLY - b * sX) / valid);
+      const predict = (x) => a * Math.exp(b * x);
+      const ssRes = filteredData.reduce((acc, d) => acc + Math.pow(d.y - predict(d.x), 2), 0);
+      const ssTot = filteredData.reduce((acc, d) => acc + Math.pow(d.y - meanY, 2), 0);
+      return { predict, eq: `y = ${a.toFixed(4)} * e^(${b.toFixed(4)}x)`, r2: ssTot === 0 ? 1 : 1 - (ssRes / ssTot) };
+    } else if (modelType === 'quadratic') {
+      let sX=0, sX2=0, sX3=0, sX4=0, sY=0, sXY=0, sX2Y=0;
+      filteredData.forEach(p => {
+        const x2 = p.x * p.x;
+        sX+=p.x; sX2+=x2; sX3+=x2*p.x; sX4+=x2*x2;
+        sY+=p.y; sXY+=p.x*p.y; sX2Y+=x2*p.y;
+      });
+      const det = (m) => m[0][0]*(m[1][1]*m[2][2] - m[1][2]*m[2][1]) - m[0][1]*(m[1][0]*m[2][2] - m[1][2]*m[2][0]) + m[0][2]*(m[1][0]*m[2][1] - m[1][1]*m[2][0]);
+      const D = det([[sX4, sX3, sX2], [sX3, sX2, sX], [sX2, sX, n]]);
+      if (Math.abs(D) < 1e-25) return null;
+      const a = det([[sX2Y, sX3, sX2], [sXY, sX2, sX], [sY, sX, n]]) / D;
+      const b = det([[sX4, sX2Y, sX2], [sX3, sXY, sX], [sX2, sY, n]]) / D;
+      const c = det([[sX4, sX3, sX2Y], [sX3, sX2, sXY], [sX2, sX, sY]]) / D;
+      const predict = (x) => a*x*x + b*x + c;
+      const ssRes = filteredData.reduce((acc, d) => acc + Math.pow(d.y - predict(d.x), 2), 0);
+      const ssTot = filteredData.reduce((acc, d) => acc + Math.pow(d.y - meanY, 2), 0);
+      return { predict, eq: `y = ${a.toFixed(3)}x² ${b>=0?'+':'-'} ${Math.abs(b).toFixed(3)}x ${c>=0?'+':'-'} ${Math.abs(c).toFixed(3)}`, r2: ssTot === 0 ? 1 : 1 - (ssRes / ssTot) };
+    }
+    return null;
+  }, [filteredData, modelType]);
+
+  // --- DATOS PARA EL GRAFICO ---
+  const dropdowns = useMemo(() => {
+    const getOptions = (key) => ['TODOS', ...new Set(data.map(d => d[key]))].sort();
+    return {
+      empresa: getOptions('empresa'),
+      campana: getOptions('campana'),
+      gm: getOptions('gm'),
+      variedad: getOptions('variedad')
+    };
+  }, [data]);
+
+  const trendLine = useMemo(() => {
+    if (!model || filteredData.length === 0) return [];
+    // Calculamos puntos para la curva de tendencia entre el min y max NDVI observado
+    const minNDVI = 0.4;
+    const maxNDVI = 1.0;
+    const steps = 40;
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+      const x = minNDVI + (maxNDVI - minNDVI) * (i / steps);
+      points.push({ x, trend: model.predict(x) });
+    }
+    return points;
+  }, [model, filteredData]);
+
+  const yieldPrediction = useMemo(() => {
+    const val = parseFloat(inputX);
+    if (model && !isNaN(val)) return Math.max(0, model.predict(val)).toFixed(2);
+    return '--';
+  }, [model, inputX]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
+      {/* Header */}
+      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center bg-slate-900 text-white p-6 rounded-2xl shadow-xl mb-8 border-b-4 border-emerald-500">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter text-emerald-500 italic">
+            Opuntia <span className="text-white not-italic">Data-Driven</span>
+          </h1>
+          <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold">Predictor Maestro de Rendimientos</p>
+        </div>
+        <div className="mt-4 md:mt-0">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 px-5 py-2.5 rounded-full flex items-center gap-3">
+            <Database className="w-5 h-5 text-emerald-400" />
+            <span className="text-sm font-mono font-black text-emerald-400">n = {data.length} REGISTROS CARGADOS</span>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Sidebar */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          
+          {/* 1. Segmentación */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-8 border-l-emerald-600">
+            <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-3">
+              <Filter className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest">1. Segmentación</h2>
+            </div>
+            
+            <div className="space-y-4">
+              {[
+                { id: 'empresa', label: 'Empresa', icon: <Factory className="w-3 h-3" /> },
+                { id: 'campana', label: 'Campaña', icon: <Calendar className="w-3 h-3" /> },
+                { id: 'gm', label: 'GM (Grupo Madurez)', icon: <Layers className="w-3 h-3" /> },
+                { id: 'variedad', label: 'Variedad', icon: <Dna className="w-3 h-3" /> }
+              ].map((f) => (
+                <div key={f.id}>
+                  <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase mb-1.5">
+                    {f.icon} {f.label}
+                  </label>
+                  <select 
+                    className="w-full bg-slate-50 border-slate-200 border rounded-lg py-2.5 px-3 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none transition-all cursor-pointer"
+                    value={filters[f.id]}
+                    onChange={(e) => setFilters(prev => ({ ...prev, [f.id]: e.target.value }))}
+                  >
+                    {dropdowns[f.id].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 2. Ajuste Estadístico */}
+          <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-8 border-l-blue-600">
+            <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
+              <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest">2. Ajuste Estadístico</h2>
+            </div>
+            <div className="space-y-2">
+              {['linear', 'exponential', 'quadratic'].map((type) => (
+                <label key={type} className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${modelType === type ? 'border-blue-500 bg-blue-50 shadow-md' : 'border-slate-100 hover:border-slate-200 bg-white'}`}>
+                  <input 
+                    type="radio" 
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500" 
+                    checked={modelType === type}
+                    onChange={() => setModelType(type)}
+                  />
+                  <span className={`ml-3 text-sm ${modelType === type ? 'font-black text-blue-900' : 'font-medium text-slate-600'}`}>
+                    {type === 'linear' ? 'Regresión Lineal' : type === 'exponential' ? 'Exponencial' : 'Polinómica Cuadrática'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </section>
+
+          {/* 3. Estimador de Rinde */}
+          <section className="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl relative overflow-hidden ring-4 ring-emerald-500/20">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16" />
+            <div className="flex items-center gap-3 mb-6 relative z-10 border-b border-white/10 pb-4">
+              <Calculator className="w-6 h-6 text-emerald-500" />
+              <h2 className="text-sm font-black text-emerald-500 uppercase tracking-widest">3. Predictor Máster</h2>
+            </div>
+            <div className="mb-6 relative z-10">
+              <label className="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">Valor NDVI Promedio (X)</label>
+              <input 
+                type="number" 
+                step="0.01"
+                placeholder="Ej: 0.85"
+                className="w-full bg-slate-800 border-slate-700 border-2 rounded-2xl py-5 px-6 text-4xl font-mono text-emerald-400 focus:border-emerald-500 outline-none shadow-inner transition-all placeholder:text-slate-700"
+                value={inputX}
+                onChange={(e) => setInputX(e.target.value)}
+              />
+            </div>
+            <div className="bg-slate-800/80 p-8 rounded-3xl border-2 border-emerald-500/30 text-center relative z-10 shadow-xl backdrop-blur-md">
+              <span className="text-[10px] text-slate-500 uppercase tracking-[0.4em] font-black italic">Rendimiento Estimado</span>
+              <div className="text-6xl font-black text-white mt-3 mb-1 drop-shadow-md">{yieldPrediction}</div>
+              <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest tracking-[0.1em]">TONELADAS / HECTÁREA</span>
+            </div>
+          </section>
+        </div>
+
+        {/* Dashboard Main Area */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          
+          {/* Stats Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-5 rounded-2xl shadow-sm border-t-8 border-slate-800">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Muestra Activa</div>
+              <div className="text-4xl font-black text-slate-800">{filteredData.length} <span className="text-xs text-slate-400 font-bold uppercase">unid.</span></div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl shadow-sm border-t-8 border-blue-600">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Precisión R²</div>
+              <div className="text-4xl font-black text-blue-600">{model ? model.r2.toFixed(4) : '--'}</div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl shadow-sm border-t-8 border-emerald-600">
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rinde Promedio</div>
+              <div className="text-4xl font-black text-emerald-600">
+                {filteredData.length > 0 ? (filteredData.reduce((a,b)=>a+b.y, 0)/filteredData.length).toFixed(2) : '--'} <span className="text-xs font-bold uppercase">Tn</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Gráfico Combinado con Curva */}
+          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 min-h-[550px] relative overflow-hidden">
+            <div className="flex justify-between items-start mb-10">
+              <div>
+                <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase flex items-center gap-3">
+                  Análisis de Correlación <TrendingUp className="text-emerald-500 w-6 h-6" />
+                </h2>
+                <p className="text-sm text-slate-400 font-bold italic tracking-tight mt-1">
+                  Distribución real vs curva de tendencia estadística ajustada
+                </p>
+              </div>
+            </div>
+            
+            <div className="h-[420px] w-full">
+              <ResponsiveContainer>
+                <ComposedChart margin={{ top: 20, right: 30, bottom: 20, left: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis 
+                    type="number" 
+                    dataKey="x" 
+                    name="NDVI" 
+                    domain={[0.35, 1.0]} 
+                    tick={{fontSize: 10, fontWeight: 'bold'}}
+                    label={{ value: 'Vigor (NDVI)', position: 'insideBottom', offset: -15, fontSize: 12, fontWeight: 'black', fill: '#64748b' }}
+                  />
+                  <YAxis 
+                    type="number" 
+                    dataKey="y" 
+                    name="Rinde" 
+                    domain={[0, 5]} 
+                    tick={{fontSize: 10, fontWeight: 'bold'}}
+                    label={{ value: 'Rendimiento (Tn/Ha)', angle: -90, position: 'insideLeft', fontSize: 12, fontWeight: 'black', fill: '#64748b' }}
+                  />
+                  <ZAxis range={[60, 450]} />
+                  <Tooltip 
+                    cursor={{ strokeDasharray: '3 3' }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload.find(p => p.name === "NDVI")?.payload || payload[0].payload;
+                        if (!d.id) return null; // No mostrar tooltip para puntos de la curva
+                        return (
+                          <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border-2 border-emerald-500/30 ring-4 ring-black/10">
+                            <p className="text-xs font-black text-emerald-400 mb-2 border-b border-white/10 pb-2 uppercase tracking-tighter">{d.id}</p>
+                            <p className="text-[10px] font-bold opacity-80 uppercase mb-1">NDVI: <span className="font-mono text-white text-sm">{d.x.toFixed(3)}</span></p>
+                            <p className="text-[10px] font-bold opacity-80 uppercase">RDTO: <span className="font-mono font-black text-emerald-400 text-sm">{d.y.toFixed(2)} Tn/Ha</span></p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend verticalAlign="top" height={36}/>
+                  
+                  {/* Puntos del Universo en el fondo */}
+                  <Scatter 
+                    name="Histórico Global" 
+                    data={data.filter(d => !filteredData.includes(d))} 
+                    fill="#e2e8f0" 
+                    shape="circle" 
+                    opacity={0.3}
+                  />
+
+                  {/* Puntos Filtrados Activos */}
+                  <Scatter 
+                    name="Muestra Activa" 
+                    data={filteredData} 
+                    fill="#10b981" 
+                    shape="circle"
+                  >
+                    {filteredData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} stroke="#065f46" strokeWidth={1} />
+                    ))}
+                  </Scatter>
+
+                  {/* Curva de Tendencia */}
+                  {trendLine.length > 0 && (
+                    <Line 
+                      name="Curva de Tendencia"
+                      data={trendLine} 
+                      type="monotone" 
+                      dataKey="trend" 
+                      stroke="#2563eb" 
+                      strokeWidth={5} 
+                      dot={false} 
+                      activeDot={false}
+                      animationDuration={1500}
+                      legendType="line"
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Ecuación y Diagnóstico */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-50 border-4 border-dashed border-slate-200 p-8 rounded-3xl flex flex-col justify-center text-center shadow-inner relative group">
+              <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                <BarChart3 className="w-12 h-12" />
+              </div>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Info className="w-4 h-4 text-slate-400" />
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Fórmula Activa del Modelo</h3>
+              </div>
+              <div className="font-mono text-2xl text-slate-700 bg-white p-6 rounded-2xl border-2 border-slate-200 shadow-md break-all font-bold tracking-tighter">
+                {model ? model.eq : 'SIN DATOS SUFICIENTES'}
+              </div>
+            </div>
+            
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center border-b-8 border-b-emerald-500">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Confiabilidad del Ajuste</h3>
+              <div className="flex items-center gap-6">
+                <div className="flex-grow bg-slate-100 rounded-full h-8 overflow-hidden border-2 border-slate-200 p-1 shadow-inner">
+                  <div 
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-1500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]" 
+                    style={{ width: model ? `${Math.min(100, Math.round(model.r2 * 100))}%` : '0%' }}
+                  />
+                </div>
+                <span className="font-black text-slate-800 text-4xl tracking-tighter w-20">{model ? Math.round(model.r2 * 100) : 0}%</span>
+              </div>
+              <div className="mt-6 flex flex-col gap-1">
+                <p className="text-[11px] text-slate-600 font-black uppercase tracking-wider">
+                  {model?.r2 > 0.8 ? 'ESTADO: AJUSTE ÓPTIMO (EXCELENTE)' : model?.r2 > 0.5 ? 'ESTADO: TENDENCIA VÁLIDA (MEDIA)' : 'ESTADO: ALTA DISPERSIÓN (BAJA)'}
+                </p>
+                <p className="text-[10px] text-slate-400 italic">
+                  * El valor R² indica qué porcentaje de la variación del rinde es explicado por el NDVI.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+      <footer className="max-w-7xl mx-auto mt-16 mb-8 text-center border-t border-slate-200 pt-10">
+        <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.5em] leading-loose">
+          Opuntia Data-Driven &copy; 2024 | Master Intelligence System | Salta, Argentina | n=200
+        </p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
