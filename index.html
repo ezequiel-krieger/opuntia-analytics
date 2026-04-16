@@ -25,11 +25,11 @@
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center w-full gap-4">
             <div>
                 <h1 class="text-3xl font-black tracking-tighter text-emerald-400 italic uppercase">Opuntia Data-Driven</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Análisis Comparativo de Poblaciones</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Agriculture Intelligence</p>
             </div>
             <div class="bg-emerald-500/10 border border-emerald-500/30 px-5 py-2.5 rounded-full flex items-center gap-3">
                 <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
-                <span class="text-sm font-mono font-black text-emerald-400 uppercase tracking-widest">n = 200 Datos Reales</span>
+                <span class="text-sm font-mono font-black text-emerald-400 uppercase tracking-widest">Relación entre vigor (NDVI) en período crítico (R3-R6) y rendimientos</span>
             </div>
         </div>
     </header>
@@ -160,8 +160,8 @@
                 if (Math.abs(D)<1e-25) return null;
                 const a = det([[s2Y,s3,s2],[s1Y,s2,s1],[sY,s1,n]])/D;
                 const b = det([[s4,s2Y,s2],[s3,s1Y,s1],[s2,sY,n]])/D;
-                const c = det([[s4,s3,s2Y],[s3,s2,s1Y],[s2,s1,sY]])/D;
-                model = { f: x => a*x**2 + b*x + c, eq: `y = ${a.toFixed(2)}x² ${b>=0?'+':'-'} ${Math.abs(b).toFixed(2)}x ${c>=0?'+':'-'} ${Math.abs(c).toFixed(2)}` };
+                const a2 = det([[s4,s3,s2Y],[s3,s2,s1Y],[s2,s1,sY]])/D; // Usamos a2 para no confundir con el parámetro 'a'
+                model = { f: x => a*x**2 + b*x + a2, eq: `y = ${a.toFixed(2)}x² ${b>=0?'+':'-'} ${Math.abs(b).toFixed(2)}x ${a2>=0?'+':'-'} ${Math.abs(a2).toFixed(2)}` };
             }
             const ssR = pts.reduce((acc,d)=>acc+(d.y - model.f(d.x))**2, 0);
             const ssT = pts.reduce((acc,d)=>acc+(d.y - mY)**2, 0);
